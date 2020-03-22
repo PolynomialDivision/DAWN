@@ -200,6 +200,13 @@ int build_network_overview(struct blob_buf *b) {
             sprintf(ap_mac_buf, MACSTR, MAC2STR(client_array[i].bssid_addr));
             ap_list = blobmsg_open_table(b, ap_mac_buf);
             printf("AP MAC BUF: %s\n", ap_mac_buf);
+
+            blobmsg_add_u32(b, "freq", ap_entry_i.freq);
+            blobmsg_add_u32(b, "channel_utilization", ap_entry_i.channel_utilization);
+            blobmsg_add_u32(b, "num_sta", ap_entry_i.station_count);
+            blobmsg_add_u8(b, "ht_support", ap_entry_i.ht_support);
+            blobmsg_add_u8(b, "vht_support", ap_entry_i.vht_support);            
+
             for (k = i; k <= client_entry_last; k++) {
                 if (!mac_is_equal(client_array[k].bssid_addr, client_array[i].bssid_addr)) {
                     i = k - 1;
@@ -217,10 +224,19 @@ int build_network_overview(struct blob_buf *b) {
                     sprintf(s, "%s", client_array[k].signature);
                     blobmsg_add_string_buffer(b);
                 }
-                blobmsg_add_u32(b, "freq", client_array[k].freq);
                 blobmsg_add_u8(b, "ht", client_array[k].ht);
                 blobmsg_add_u8(b, "vht", client_array[k].vht);
                 blobmsg_add_u32(b, "collision_count", ap_get_collision_count(ap_array[m].collision_domain));
+
+                int n;
+                for(n = 0; n <= probe_entry_last; n++)
+                {
+                    if (mac_is_equal(client_array[k].client_addr, probe_array[n].client_addr) &&
+                            mac_is_equal(client_array[k].bssid_addr, probe_array[n].bssid_addr)) {
+                        blobmsg_add_u32(b, "signal", probe_array[n].signal);
+                        break;
+                    }
+                }
                 blobmsg_close_table(b, client_list);
             }
             blobmsg_close_table(b, ap_list);
@@ -704,6 +720,8 @@ int probe_array_update_rssi(uint8_t bssid_addr[], uint8_t client_addr[], uint32_
             probe_array[i].signal = rssi;
             updated = 1;
             ubus_send_probe_via_network(probe_array[i]);
+            break;
+            //TODO: break?!
         }
     }
     pthread_mutex_unlock(&probe_array_mutex);
