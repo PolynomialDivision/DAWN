@@ -1124,7 +1124,7 @@ static int parse_add_mac_to_file(struct blob_attr *msg) {
         hwaddr_aton(blobmsg_data(attr), addr);
 
         if (insert_to_maclist(addr) == 0) {
-            write_mac_to_file("/etc/dawn/mac_list", addr);
+            write_mac_to_file("/tmp/dawn_mac_list", addr);
         }
     }
 

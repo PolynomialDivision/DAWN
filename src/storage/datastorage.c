@@ -971,7 +971,7 @@ void denied_req_array_cb(struct uloop_timeout *t) {
                 // maybe delete again?
                 if (insert_to_maclist(denied_req_array[i].client_addr) == 0) {
                     send_add_mac(denied_req_array[i].client_addr);
-                    write_mac_to_file("/etc/dawn/mac_list", denied_req_array[i].client_addr);
+                    write_mac_to_file("/tmp/dawn_mac_list", denied_req_array[i].client_addr);
                 }
             }
             denied_req_array_delete(denied_req_array[i]);
@@ -1003,7 +1003,7 @@ void insert_macs_from_file() {
     size_t len = 0;
     ssize_t read;
 
-    fp = fopen("/etc/dawn/mac_list", "r");
+    fp = fopen("/tmp/dawn_mac_list", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
