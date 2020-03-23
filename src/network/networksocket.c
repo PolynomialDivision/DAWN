@@ -44,16 +44,15 @@ int init_socket_runopts(const char *_ip, int _port, int _multicast_socket) {
     pthread_t sniffer_thread;
     if (network_config.use_symm_enc) {
         if (pthread_create(&sniffer_thread, NULL, receive_msg_enc, NULL)) {
-            fprintf(stderr, "Could not create receiving thread!");
+            fprintf(stderr, "Could not create receiving thread!\n");
             return -1;
         }
     } else {
         if (pthread_create(&sniffer_thread, NULL, receive_msg, NULL)) {
-            fprintf(stderr, "Could not create receiving thread!");
+            fprintf(stderr, "Could not create receiving thread!\n");
             return -1;
         }
     }
-
 
     fprintf(stdout, "Connected to %s:%d\n", ip, port);
 
@@ -77,7 +76,7 @@ void *receive_msg(void *args) {
         }
         recv_string[recv_string_len] = '\0';
 
-        printf("NETRWORK RECEIVED NEW: %s\n", recv_string);
+        printf("Received network message: %s\n", recv_string);
         handle_network_msg(recv_string);
     }
 }
@@ -86,7 +85,7 @@ void *receive_msg_enc(void *args) {
     while (1) {
         if ((recv_string_len =
                      recvfrom(sock, recv_string, MAX_RECV_STRING, 0, NULL, 0)) < 0) {
-            fprintf(stderr, "Could not receive message!");
+            fprintf(stderr, "Could not receive message!\n");
             continue;
         }
 
@@ -103,7 +102,7 @@ void *receive_msg_enc(void *args) {
         int base64_dec_length = b64_decode(recv_string, base64_dec_str, B64_DECODE_LEN(strlen(recv_string)));
         char *dec = gcrypt_decrypt_msg(base64_dec_str, base64_dec_length);
 
-        printf("NETRWORK RECEIVED: %s\n", dec);
+        printf("Received network message: %s\n", dec);
         free(base64_dec_str);
         handle_network_msg(dec);
         free(dec);

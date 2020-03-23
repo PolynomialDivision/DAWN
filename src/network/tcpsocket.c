@@ -58,7 +58,7 @@ static void client_to_server_close(struct ustream *s) {
     struct network_con_s *con = container_of(s,
     struct network_con_s, stream.stream);
 
-    fprintf(stderr, "Connection to SERVER closed\n");
+    fprintf(stderr, "Connection to server closed\n");
     ustream_free(s);
     close(con->fd.fd);
     list_del(&con->list);
@@ -237,9 +237,9 @@ void send_tcp(char *msg) {
         {
             if (con->connected) {
                 int len_ustream = ustream_write(&con->stream.stream, base64_enc_str, base64_enc_length, 0);
-                printf("USTRAM SEND: %d\n", len_ustream);
+                printf("Ustream send: %d\n", len_ustream);
                 if (len_ustream <= 0) {
-                    fprintf(stderr,"USTREAM ERROR!\n");
+                    fprintf(stderr,"Ustream error!\n");
                     //TODO: ERROR HANDLING!
                 }
             }
@@ -256,7 +256,7 @@ void send_tcp(char *msg) {
             if (con->connected) {
                 if (ustream_printf(&con->stream.stream, "%s", msg) == 0) {
                     //TODO: ERROR HANDLING!
-                    fprintf(stderr,"USTREAM ERROR!\n");
+                    fprintf(stderr,"Ustream error!\n");
                 }
             }
         }

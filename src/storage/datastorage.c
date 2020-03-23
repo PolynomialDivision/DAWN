@@ -100,13 +100,11 @@ int build_hearing_map_sort_client(struct blob_buf *b) {
     blob_buf_init(b, 0);
     int m;
     for (m = 0; m <= ap_entry_last; m++) {
-        printf("COMPARING!\n");
         if (m > 0) {
             if (strcmp((char *) ap_array[m].ssid, (char *) ap_array[m - 1].ssid) == 0) {
                 continue;
             }
         }
-        printf("OPEN TABLE!!!\n");
         ssid_list = blobmsg_open_table(b, (char *) ap_array[m].ssid);
 
         int i;
@@ -180,7 +178,6 @@ int build_network_overview(struct blob_buf *b) {
     blob_buf_init(b, 0);
     int m;
     for (m = 0; m <= ap_entry_last; m++) {
-        printf("COMPARING!\n");
         if (m > 0) {
             if (strcmp((char *) ap_array[m].ssid, (char *) ap_array[m - 1].ssid) == 0) {
                 continue;
@@ -199,7 +196,6 @@ int build_network_overview(struct blob_buf *b) {
             int k;
             sprintf(ap_mac_buf, MACSTR, MAC2STR(client_array[i].bssid_addr));
             ap_list = blobmsg_open_table(b, ap_mac_buf);
-            printf("AP MAC BUF: %s\n", ap_mac_buf);
 
             blobmsg_add_u32(b, "freq", ap_entry_i.freq);
             blobmsg_add_u32(b, "channel_utilization", ap_entry_i.channel_utilization);
@@ -276,7 +272,7 @@ int eval_probe_metric(struct probe_entry_s probe_entry) {
     if (score < 0)
         score = -2; // -1 already used...
 
-    printf("SCORE: %d of:\n", score);
+    printf("Score: %d of:\n", score);
     print_probe_entry(probe_entry);
 
     return score;
@@ -309,15 +305,15 @@ int compare_station_count(uint8_t *bssid_addr_own, uint8_t *bssid_addr_to_compar
         int sta_count = ap_entry_own.station_count;
         int sta_count_to_compare = ap_entry_to_compre.station_count;
         if (is_connected(bssid_addr_own, client_addr)) {
-            printf("OWN IS ALREADY CONNECTED! DECREASE COUNTER!!!\n");
+            printf("Own is already connected! Decrease counter!\n");
             sta_count--;
         }
 
         if (is_connected(bssid_addr_to_compare, client_addr)) {
-            printf("COMPARE IS ALREADY CONNECTED! DECREASE COUNTER!!!\n");
+            printf("Comparing station is already connected! Decrease counter!\n");
             sta_count_to_compare--;
         }
-        printf("AFTER: Comparing own %d to %d\n", sta_count, sta_count_to_compare);
+        printf("Comparing own station count %d to %d\n", sta_count, sta_count_to_compare);
 
         return sta_count - sta_count_to_compare > dawn_metric.max_station_diff;
     }
@@ -436,9 +432,9 @@ void kick_clients(uint8_t bssid[], uint32_t id) {
         if (rssi != INT_MIN) {
             pthread_mutex_unlock(&probe_array_mutex);
             if (!probe_array_update_rssi(client_array[j].bssid_addr, client_array[j].client_addr, rssi)) {
-                printf("Failed to update RSSI!\n");
+                printf("Failed to update rssi!\n");
             } else {
-                printf("RSSI UPDATED: RSSI: %d\n\n", rssi);
+                printf("Updated rssi: %d\n", rssi);
             }
             pthread_mutex_lock(&probe_array_mutex);
 
@@ -454,7 +450,7 @@ void kick_clients(uint8_t bssid[], uint32_t id) {
             // + chan util is changing a lot
             // + ping pong behavior of clients will be reduced
             client_array[j].kick_count++;
-            printf("Comparing kick count kickcount: %d to min_kick_count: %d!\n", client_array[j].kick_count,
+            printf("Comparing kick count! kickcount: %d to min_kick_count: %d!\n", client_array[j].kick_count,
                    dawn_metric.min_kick_count);
             if (client_array[j].kick_count < dawn_metric.min_kick_count) {
                 continue;
@@ -692,10 +688,10 @@ int probe_array_set_all_probe_count(uint8_t client_addr[], uint32_t probe_count)
     pthread_mutex_lock(&probe_array_mutex);
     for (int i = 0; i <= probe_entry_last; i++) {
         if (mac_is_equal(client_addr, probe_array[i].client_addr)) {
-            printf("SETTING MAC!!!\n");
+            printf("Setting probecount for given mac!\n");
             probe_array[i].counter = probe_count;
         } else if (!mac_is_greater(client_addr, probe_array[i].client_addr)) {
-            printf("MAC NOT FOUND!!!\n");
+            printf("MAC not found!\n");
             break;
         }
     }
@@ -928,9 +924,9 @@ void uloop_add_data_cbs() {
 
 void remove_probe_array_cb(struct uloop_timeout *t) {
     pthread_mutex_lock(&probe_array_mutex);
-    printf("[Thread] : Removing old entries!\n");
+    printf("[Thread] : Removing old probe entries!\n");
     remove_old_probe_entries(time(0), timeout_config.remove_probe);
-    printf("[Thread] : Removing old FINISHED!\n");
+    printf("[Thread] : Removing old entries finished!\n");
     pthread_mutex_unlock(&probe_array_mutex);
     uloop_timeout_set(&probe_timeout, timeout_config.remove_probe * 1000);
 }
@@ -953,7 +949,7 @@ void remove_ap_array_cb(struct uloop_timeout *t) {
 
 void denied_req_array_cb(struct uloop_timeout *t) {
     pthread_mutex_lock(&denied_array_mutex);
-    printf("[ULOOP] : Processing denied AUTH!\n");
+    printf("[ULOOP] : Processing denied authentication!\n");
 
     time_t current_time = time(0);
 
@@ -965,7 +961,7 @@ void denied_req_array_cb(struct uloop_timeout *t) {
 
             // client is not connected for a given time threshold!
             if (!is_connected_somehwere(denied_req_array[i].client_addr)) {
-                printf("Client has propaly a BAD DRIVER!\n");
+                printf("Client has propaly a bad driver!\n");
 
                 // problem that somehow station will land into this list
                 // maybe delete again?
@@ -1020,7 +1016,7 @@ void insert_macs_from_file() {
         }
     }
 
-    printf("Printing MAC List:\n");
+    printf("Printing MAC list:\n");
     for (int i = 0; i <= mac_list_entry_last; i++) {
         char mac_buf_target[20];
         sprintf(mac_buf_target, MACSTR, MAC2STR(mac_list[i]));

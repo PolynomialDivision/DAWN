@@ -394,7 +394,7 @@ static int handle_auth_req(struct blob_attr *msg) {
     auth_entry auth_req;
     parse_to_auth_req(msg, &auth_req);
 
-    printf("AUTH Entry: ");
+    printf("Auth entry: ");
     print_auth_entry(auth_req);
 
     if (mac_in_maclist(auth_req.client_addr)) {
@@ -408,7 +408,7 @@ static int handle_auth_req(struct blob_attr *msg) {
 
     // block if entry was not already found in probe database
     if (!(mac_is_equal(tmp.bssid_addr, auth_req.bssid_addr) && mac_is_equal(tmp.client_addr, auth_req.client_addr))) {
-        printf("DENY AUTH!\n");
+        printf("Deny authentication!\n");
 
         if (dawn_metric.use_driver_recog) {
             insert_to_denied_req_array(auth_req, 1);
@@ -417,7 +417,7 @@ static int handle_auth_req(struct blob_attr *msg) {
     }
 
     if (!decide_function(&tmp, REQ_TYPE_AUTH)) {
-        printf("DENY AUTH\n");
+        printf("Deny authentication\n");
         if (dawn_metric.use_driver_recog) {
             insert_to_denied_req_array(auth_req, 1);
         }
@@ -425,7 +425,7 @@ static int handle_auth_req(struct blob_attr *msg) {
     }
 
     // maybe send here that the client is connected?
-    printf("ALLOW AUTH!\n");
+    printf("Allow authentication!\n");
     return WLAN_STATUS_SUCCESS;
 }
 
@@ -434,7 +434,7 @@ static int handle_assoc_req(struct blob_attr *msg) {
     print_probe_array();
     auth_entry auth_req;
     parse_to_assoc_req(msg, &auth_req);
-    printf("ASSOC Entry: ");
+    printf("Association entry: ");
     print_auth_entry(auth_req);
 
     if (mac_in_maclist(auth_req.client_addr)) {
@@ -448,7 +448,7 @@ static int handle_assoc_req(struct blob_attr *msg) {
 
     // block if entry was not already found in probe database
     if (!(mac_is_equal(tmp.bssid_addr, auth_req.bssid_addr) && mac_is_equal(tmp.client_addr, auth_req.client_addr))) {
-        printf("DENY ASSOC!\n");
+        printf("Deny associtation!\n");
         if (dawn_metric.use_driver_recog) {
             insert_to_denied_req_array(auth_req, 1);
         }
@@ -456,14 +456,14 @@ static int handle_assoc_req(struct blob_attr *msg) {
     }
 
     if (!decide_function(&tmp, REQ_TYPE_ASSOC)) {
-        printf("DENY ASSOC\n");
+        printf("Deny association\n");
         if (dawn_metric.use_driver_recog) {
             insert_to_denied_req_array(auth_req, 1);
         }
         return dawn_metric.deny_assoc_reason;
     }
 
-    printf("ALLOW ASSOC!\n");
+    printf("Allow association!\n");
     return WLAN_STATUS_SUCCESS;
 }
 
@@ -568,7 +568,7 @@ int handle_network_msg(char *msg) {
         handle_uci_config(data_buf.head);
     } else
     {
-        printf("NO METHOD FOUND!!!! FOR: %s\n", method);
+        printf("No method fonud for: %s\n", method);
     }
 
     return 0;
@@ -611,7 +611,7 @@ static int hostapd_notify(struct ubus_context *ctx, struct ubus_object *obj,
                           struct blob_attr *msg) {
     char *str;
     str = blobmsg_format_json(msg, true);
-    printf("METHOD new: %s : %s\n", method, str);
+    printf("Method new: %s : %s\n", method, str);
     free(str);
 
     struct hostapd_sock_entry *entry;
@@ -1107,7 +1107,7 @@ static int parse_add_mac_to_file(struct blob_attr *msg) {
     struct blob_attr *tb[__ADD_DEL_MAC_MAX];
     struct blob_attr *attr;
     
-    printf("PASRING MAC!\n");
+    printf("Parsing MAC!\n");
 
     blobmsg_parse(add_del_policy, __ADD_DEL_MAC_MAX, tb, blob_data(msg), blob_len(msg));
 
@@ -1115,11 +1115,11 @@ static int parse_add_mac_to_file(struct blob_attr *msg) {
         return UBUS_STATUS_INVALID_ARGUMENT;
 
     int len = blobmsg_data_len(tb[MAC_ADDR]);
-    printf("LEN of array maclist: %d\n", len);
+    printf("Length of array maclist: %d\n", len);
 
     __blob_for_each_attr(attr, blobmsg_data(tb[MAC_ADDR]), len)
     {
-        printf("ITERATION THOUGH MACLIST!\n");
+        printf("Iteration through MAC-list\n");
         uint8_t addr[ETH_ALEN];
         hwaddr_aton(blobmsg_data(attr), addr);
 
@@ -1221,7 +1221,7 @@ static void hostapd_handle_remove(struct ubus_context *ctx,
     struct hostapd_sock_entry, subscriber);
 
     if (hostapd_sock->id != id) {
-        printf("ID NOT THE SAME!\n");
+        printf("ID is not the same!\n");
         return;
     }
     

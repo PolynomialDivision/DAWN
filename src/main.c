@@ -62,7 +62,7 @@ int init_mutex() {
     }
 
     if (pthread_mutex_init(&ap_array_mutex, NULL) != 0) {
-        printf("\n mutex init failed\n");
+        fprintf(stderr, "Mutex init failed!\n");
         return 1;
     }
 
